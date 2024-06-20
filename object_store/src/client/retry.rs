@@ -25,6 +25,7 @@ use reqwest::{Client, Request, Response, StatusCode};
 use snafu::Error as SnafuError;
 use snafu::Snafu;
 use std::time::{Duration, Instant};
+use tracing::error;
 use tracing::info;
 
 /// Retry request error
@@ -327,11 +328,11 @@ impl RetryableRequest {
                     let sleep = backoff.next();
                     retries += 1;
                     info!(
-                        "Encountered transport error backing off for {} seconds, retry {} of {}: {}",
+                        "Encountered transport error backing off for {} seconds, retry {} of {}: {:?}",
                         sleep.as_secs_f32(),
                         retries,
                         max_retries,
-                        e,
+                        e.source(),
                     );
                     tokio::time::sleep(sleep).await;
                 }
